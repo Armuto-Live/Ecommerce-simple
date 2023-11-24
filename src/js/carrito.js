@@ -8,8 +8,7 @@ const contenedorCarritoComprado = document.querySelector("#carrito-comprado");
 let botonesEliminar = document.querySelectorAll(".carrito-producto-eliminar");
 const botonVaciar = document.querySelector("#carrito-acciones-vaciar");
 const total = document.querySelector("#total");
-const botonComprar=document.querySelector('#carrito-acciones-comprar');
-
+const botonComprar = document.querySelector("#carrito-acciones-comprar");
 
 function cargarProductosCarrito() {
   if (productosEnCarrito && productosEnCarrito.length > 0) {
@@ -83,21 +82,62 @@ function eliminarDelCarrito(e) {
     "productos-en-carrito",
     JSON.stringify(productosEnCarrito)
   );
+
+  Toastify({
+    text: "Producto eliminado",
+    duration: 3000,
+    close: true,
+    gravity: "top", // `top` or `bottom`
+    position: "right", // `left`, `center` or `right`
+    stopOnFocus: true, // Prevents dismissing of toast on hover
+    style: {
+      background: "linear-gradient(to right, #4b33a8, #846be5)",
+      borderRadius: "2rem",
+      textTransform: "uppercase",
+      fontSize: ".75rem",
+    },
+    offset: {
+      x: "1.5rem",
+      y: "1.5rem",
+    },
+    onClick: function () {}, // Callback after click
+  }).showToast();
 }
 
 botonVaciar.addEventListener("click", vaciarCarrito);
 function vaciarCarrito() {
-  productosEnCarrito.length = 0;
-  localStorage.setItem(
-    "productos-en-carrito",
-    JSON.stringify(productosEnCarrito)
-  );
-  cargarProductosCarrito();
+  Swal.fire({
+    title: "¿Estás seguro?",
+    icon: "question",
+    html: `
+      Se van a borrar ${productosEnCarrito.reduce((suma,producto)=>suma+producto.cantidad,0)} productos
+    `,
+    showCancelButton: true,
+    focusConfirm: false,
+    confirmButtonText: `
+      Si
+    `,
+    cancelButtonText: `
+      No
+    `,
+  }).then((result) => {
+    if (result.isConfirmed) {
+      productosEnCarrito.length = 0;
+      localStorage.setItem(
+        "productos-en-carrito",
+        JSON.stringify(productosEnCarrito)
+      );
+      cargarProductosCarrito();
+    }
+  });
 }
 
-function actualizarTotal(){
-  const totalCalculado=productosEnCarrito.reduce((acc,producto)=> acc + (producto.precio*producto.cantidad),0)
-  total.innerText=`S/.${totalCalculado}`;
+function actualizarTotal() {
+  const totalCalculado = productosEnCarrito.reduce(
+    (acc, producto) => acc + producto.precio * producto.cantidad,
+    0
+  );
+  total.innerText = `S/.${totalCalculado}`;
 }
 
 botonComprar.addEventListener("click", comprarCarrito);
